@@ -54,7 +54,13 @@
           <button class="main" onclick={() => onEdit(preset.id)}>
             <span class="name">
               {preset.name || '—'}
-              {#if matches(preset)}<span class="b-badge">{$t('list.activeHere')}</span>{/if}
+              {#if matches(preset)}
+                {#if preset.enabled}
+                  <span class="b-badge">{$t('list.activeHere')}</span>
+                {:else}
+                  <span class="b-badge b-badge--muted">{$t('list.pausedHere')}</span>
+                {/if}
+              {/if}
             </span>
             <span class="domains">{preset.domains.join(', ')}</span>
           </button>

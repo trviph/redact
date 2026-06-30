@@ -10,6 +10,7 @@ export const vi: Messages = {
   'list.empty': 'Chưa có bộ lọc nào. Thêm một bộ để bắt đầu.',
   'list.addPreset': 'Thêm bộ lọc',
   'list.activeHere': 'Đang áp dụng',
+  'list.pausedHere': 'Tạm dừng',
   'list.prev': 'Trước',
   'list.next': 'Sau',
   'list.pageOf': 'Trang {page} trên {count}',

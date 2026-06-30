@@ -11,6 +11,7 @@ export const en = {
   'list.empty': 'No presets yet. Add one to get started.',
   'list.addPreset': 'Add preset',
   'list.activeHere': 'Active here',
+  'list.pausedHere': 'Paused here',
   'list.prev': 'Previous',
   'list.next': 'Next',
   'list.pageOf': 'Page {page} of {count}',

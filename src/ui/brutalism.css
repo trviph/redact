@@ -8,6 +8,7 @@
   --b-pink: #ff5da2;
   --b-cyan: #5ad1ff;
   --b-lime: #b6f36b;
+  --b-muted: #d6d6d6;
   --b-accent: var(--b-yellow);
 
   --b-border: 3px solid var(--b-ink);
@@ -90,6 +91,12 @@ body {
   background: var(--b-lime);
   border: 2px solid var(--b-ink);
   border-radius: var(--b-radius);
+}
+
+/* Muted variant — a matching preset whose toggle is off ("paused here"). */
+.b-badge--muted {
+  background: var(--b-muted);
+  color: #555;
 }
 
 /* Visible focus for keyboard users. */

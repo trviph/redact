@@ -168,6 +168,106 @@ describe('element box cap', () => {
   });
 });
 
+describe('media redaction', () => {
+  function mockSize(el: Element, width = 100, height = 50) {
+    el.getBoundingClientRect = () =>
+      ({ width, height, top: 0, left: 0, right: width, bottom: height, x: 0, y: 0, toJSON() {} }) as DOMRect;
+  }
+  const ph = '[data-redact-placeholder]';
+
+  const isPlaceholderSrc = (src: string | null) => !!src && src.startsWith('data:image/svg+xml');
+
+  it('redacts a matched image in place, keeping the element and its styling', () => {
+    document.body.innerHTML = '<img class="avatar secret" src="real.jpg">';
+    mockSize(document.querySelector('img')!);
+    createRedactor([rule({ media: ['image'] })]).redactRoot(document);
+    const img = document.querySelector('img');
+    expect(img).not.toBeNull(); // element stays
+    expect(img?.className).toBe('avatar secret'); // styling preserved
+    expect(isPlaceholderSrc(img?.getAttribute('src') ?? null)).toBe(true);
+  });
+
+  it('clears srcset so the placeholder src wins', () => {
+    document.body.innerHTML = '<img class="secret" src="a.jpg" srcset="a-2x.jpg 2x">';
+    mockSize(document.querySelector('img')!);
+    createRedactor([rule({ media: ['image'] })]).redactRoot(document);
+    expect(document.querySelector('img')?.hasAttribute('srcset')).toBe(false);
+  });
+
+  it('swaps the src of an image inside a matched container', () => {
+    document.body.innerHTML = '<div class="secret"><img src="x.jpg"><video></video></div>';
+    mockSize(document.querySelector('img')!);
+    createRedactor([rule({ media: ['image'] })]).redactRoot(document);
+    expect(isPlaceholderSrc(document.querySelector('img')?.getAttribute('src') ?? null)).toBe(true);
+    expect(document.querySelector('video')).not.toBeNull(); // video kind not enabled
+  });
+
+  it('still replaces non-image media (video) with a placeholder box', () => {
+    document.body.innerHTML = '<div class="secret"><video></video></div>';
+    mockSize(document.querySelector('video')!);
+    createRedactor([rule({ media: ['video'] })]).redactRoot(document);
+    expect(document.querySelector('video')).toBeNull();
+    expect(document.querySelector(ph)?.getAttribute('data-redact-placeholder')).toBe('video');
+  });
+
+  it('leaves media alone when its kind is not enabled', () => {
+    document.body.innerHTML = '<div class="secret"><video></video></div>';
+    mockSize(document.querySelector('video')!);
+    createRedactor([rule({ media: ['image'] })]).redactRoot(document);
+    expect(document.querySelector('video')).not.toBeNull();
+    expect(document.querySelector(ph)).toBeNull();
+  });
+
+  it('restores the original image src on restoreAll', () => {
+    document.body.innerHTML = '<img class="secret" src="real.jpg">';
+    mockSize(document.querySelector('img')!);
+    const redactor = createRedactor([rule({ media: ['image'] })]);
+    redactor.redactRoot(document);
+    redactor.restoreAll();
+    expect(document.querySelector('img')?.getAttribute('src')).toBe('real.jpg');
+  });
+
+  it('removes the src on restore when the image had none', () => {
+    document.body.innerHTML = '<img class="secret">';
+    mockSize(document.querySelector('img')!);
+    const redactor = createRedactor([rule({ media: ['image'] })]);
+    redactor.redactRoot(document);
+    redactor.restoreAll();
+    expect(document.querySelector('img')?.hasAttribute('src')).toBe(false);
+  });
+
+  it('is idempotent: a second pass does not re-write an already-redacted image', () => {
+    document.body.innerHTML = '<div class="secret"><img src="x.jpg"></div>';
+    mockSize(document.querySelector('img')!);
+    const redactor = createRedactor([rule({ media: ['image'] })]);
+    redactor.redactRoot(document);
+    const after = document.querySelector('img')?.getAttribute('src');
+    expect(redactor.redactRoot(document)).toBe(0);
+    expect(document.querySelector('img')?.getAttribute('src')).toBe(after);
+  });
+
+  it('re-redacts an image whose src the page rewrote back to a real value', () => {
+    document.body.innerHTML = '<img class="secret" src="x.jpg">';
+    const img = document.querySelector('img') as HTMLImageElement;
+    mockSize(img);
+    const redactor = createRedactor([rule({ media: ['image'] })]);
+    redactor.redactRoot(document);
+    img.setAttribute('src', 'fresh.jpg'); // simulate a framework re-render
+    redactor.redactRoot(document);
+    expect(isPlaceholderSrc(img.getAttribute('src'))).toBe(true);
+    redactor.restoreAll();
+    expect(img.getAttribute('src')).toBe('x.jpg'); // original, not the page's rewrite
+  });
+
+  it('does not touch media when the rule has no media kinds', () => {
+    document.body.innerHTML = '<div class="secret">hi<img src="x.jpg"></div>';
+    mockSize(document.querySelector('img')!);
+    createRedactor([rule({})]).redactRoot(document);
+    expect(document.querySelector('img')?.getAttribute('src')).toBe('x.jpg');
+    expect(document.querySelector('.secret')?.textContent).toContain('██');
+  });
+});
+
 describe('redactScoped', () => {
   it('redacts the matched ancestor of a target (deep change inside a match)', () => {
     document.body.innerHTML = '<div class="secret"><span><i id="deep">John</i></span></div>';

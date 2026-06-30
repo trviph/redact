@@ -13,5 +13,6 @@ export function newRule(): Rule {
     selectorType: 'css',
     description: '',
     style: { strategy: 'whole' },
+    media: [],
   };
 }

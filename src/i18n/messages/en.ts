@@ -40,6 +40,10 @@ export const en = {
   'rule.description': 'Description',
   'rule.descriptionPlaceholder': 'Optional note',
   'rule.remove': 'Remove',
+  'rule.media': 'Redact media',
+  'rule.mediaImages': 'Images',
+  'rule.mediaVideo': 'Video',
+  'rule.mediaEmbeds': 'Embeds',
 
   'popup.title': 'Redact',
 

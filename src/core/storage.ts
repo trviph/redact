@@ -4,9 +4,17 @@ import type { Preset } from './types';
 /** Presets are the single source of truth; everything else is derived. */
 const presetsItem = storage.defineItem<Preset[]>('local:presets', { fallback: [] });
 
+/** Fills in fields added after a preset was stored, so older data stays valid. */
+function normalize(preset: Preset): Preset {
+  return {
+    ...preset,
+    rules: preset.rules.map((rule) => ({ ...rule, media: rule.media ?? [] })),
+  };
+}
+
 /** Returns all stored presets (empty when none have been saved). */
 export async function getPresets(): Promise<Preset[]> {
-  return presetsItem.getValue();
+  return (await presetsItem.getValue()).map(normalize);
 }
 
 /** Replaces the entire stored preset list. */

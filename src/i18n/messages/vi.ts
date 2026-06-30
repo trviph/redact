@@ -39,6 +39,10 @@ export const vi: Messages = {
   'rule.description': 'Mô tả',
   'rule.descriptionPlaceholder': 'Ghi chú tùy chọn',
   'rule.remove': 'Bỏ',
+  'rule.media': 'Che phương tiện',
+  'rule.mediaImages': 'Hình ảnh',
+  'rule.mediaVideo': 'Video',
+  'rule.mediaEmbeds': 'Khung nhúng',
 
   'popup.title': 'Redact',
 

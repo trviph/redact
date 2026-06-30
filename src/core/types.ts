@@ -1,5 +1,8 @@
 export type SelectorType = 'css' | 'xpath';
 
+/** Kinds of media element a rule can replace with a placeholder. */
+export type MediaKind = 'image' | 'video' | 'embed';
+
 /**
  * Selects a redaction strategy by name and carries strategy-specific options.
  * Options are deliberately open so new strategies can add fields without
@@ -16,6 +19,8 @@ export interface Rule {
   selectorType: SelectorType;
   description?: string;
   style: RedactStyleConfig;
+  /** Media element kinds to replace with a placeholder; [] or undefined means none. */
+  media?: MediaKind[];
 }
 
 export interface Preset {

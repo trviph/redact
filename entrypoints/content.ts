@@ -18,6 +18,14 @@ function rulesKey(rules: Rule[]): string {
   return JSON.stringify(rules.map((rule) => [rule.selector, rule.selectorType, rule.style]));
 }
 
+/** Resolves once the full document has been parsed (immediately if already past loading). */
+function whenDomReady(): Promise<void> {
+  if (document.readyState !== 'loading') return Promise.resolve();
+  return new Promise((resolve) => {
+    document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
+  });
+}
+
 export default defineContentScript({
   // Registered at runtime from the background script for the user's configured
   // domains, so no static matches are declared here.
@@ -53,7 +61,12 @@ export default defineContentScript({
     try {
       const initialRules = rulesFromPresets(await getPresets(), location.hostname);
       appliedKey = rulesKey(initialRules);
+      // Start the observer + sweep now; it redacts nodes as they parse in.
       session.apply(initialRules);
+      // Stay hidden until the whole document is parsed, so every matched node
+      // is redacted before the page is revealed. Without this the page would
+      // reveal mid-parse and unredacted content would paint.
+      if (initialRules.length > 0) await whenDomReady();
     } finally {
       fouc.reveal();
     }

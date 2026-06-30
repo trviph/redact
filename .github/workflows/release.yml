@@ -1,0 +1,35 @@
+name: Release
+
+# Push a vX.Y.Z tag to build, test, package both browsers, and publish a
+# GitHub Release with the zips attached.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write # create the GitHub Release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run compile
+      - run: npm test
+
+      - run: npm run zip
+      - run: npm run zip:firefox
+
+      - name: Publish GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" .output/*.zip --generate-notes --title "$GITHUB_REF_NAME"

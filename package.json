@@ -1,0 +1,34 @@
+{
+  "name": "redact-extension",
+  "description": "Redact page elements before first render, by CSS or XPath selector",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "wxt prepare && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@tsconfig/svelte": "^5.0.8",
+    "@wxt-dev/module-svelte": "^2.0.5",
+    "jsdom": "^29.1.1",
+    "svelte": "^5.56.4",
+    "svelte-check": "^4.7.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9",
+    "wxt": "^0.20.27"
+  },
+  "overrides": {
+    "uuid": "^14.0.1",
+    "tmp": "^0.2.7",
+    "shell-quote": "^1.9.0"
+  }
+}

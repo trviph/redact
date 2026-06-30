@@ -5,8 +5,8 @@ import { domainsToMatchPatterns } from './domain-match';
 /** Single id for our one dynamically-registered content script. */
 export const CONTENT_SCRIPT_ID = 'redact-content';
 
-/** Build output path of the content script, registered at runtime. */
-const CONTENT_SCRIPT_JS = 'content-scripts/content.js';
+/** Build output path of the content script, registered or injected at runtime. */
+export const CONTENT_SCRIPT_JS = 'content-scripts/content.js';
 
 /** Derives the match patterns the content script should run on (enabled presets only). */
 export function deriveContentScriptMatches(presets: Preset[]): string[] {

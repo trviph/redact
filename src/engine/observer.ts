@@ -15,12 +15,17 @@ function scanRoot(node: Node): ParentNode | null {
 
 /**
  * Watches the DOM for nodes added during incremental parse and afterwards (SPA
- * content), redacting each newly added subtree. Redaction edits text data only
- * and never inserts nodes, so it does not retrigger the observer.
+ * content), and for in-place text changes from re-renders. New subtrees are
+ * redacted; text rewritten on a node we manage is re-redacted via refresh().
+ * Our own writes are recognized and skipped, so we do not retrigger ourselves.
  */
 export function createRedactionObserver(redactor: Redactor): RedactionObserver {
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
+      if (mutation.type === 'characterData') {
+        redactor.refresh(mutation.target);
+        continue;
+      }
       for (const added of mutation.addedNodes) {
         const root = scanRoot(added);
         if (root) redactor.redactRoot(root);
@@ -30,7 +35,7 @@ export function createRedactionObserver(redactor: Redactor): RedactionObserver {
 
   return {
     start(root: Node): void {
-      observer.observe(root, { childList: true, subtree: true });
+      observer.observe(root, { childList: true, subtree: true, characterData: true });
     },
     stop(): void {
       observer.disconnect();

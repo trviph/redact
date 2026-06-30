@@ -18,6 +18,7 @@ Because redaction happens *before first render*, these all hold even at the inst
 - It loads the presets that match the current host, redacts the matched elements' text, then reveals the page. A timeout failsafe guarantees the page is never left hidden.
 - A `MutationObserver` keeps redacting content added later (incremental parse and SPA updates).
 - Content scripts are registered at runtime only for the domains you configure (no `<all_urls>`), using optional host permissions requested when you save a preset.
+- Toggling a preset on or off updates already-open matching pages **without a reload** — turning it on redacts immediately (behind the overlay), turning it off restores the original text in place. This matters on dynamic pages where a reload would lose state.
 
 See `.claude/plans/` for the full design notes.
 

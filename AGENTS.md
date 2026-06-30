@@ -19,18 +19,20 @@ The synchronous hide is load-bearing. Storage is async, so the page stays hidden
 
 ```
 entrypoints/
-  background.ts     syncRegistrations() on install/startup/preset-change; lifecycle
-  content.ts        document_start pipeline: hide → load → sweep → reveal; MutationObserver
+  background.ts     on preset change: syncRegistrations() + ensureInjected(); install/startup resync
+  content.ts        document_start pipeline: hide → load → sweep → reveal; then live reconcile on changes
   options/          Svelte: preset CRUD + language switcher (fully localized)
   popup/            Svelte: quick enable/disable for the current site
-src/core/           no DOM — types, storage, domain-match, registration, permissions, factory
-src/engine/         fouc, selector (CSS+XPath), redactor, observer
+src/core/           no DOM — types, storage, domain-match, registration, injection, permissions, factory
+src/engine/         fouc, selector (CSS+XPath), redactor (reversible), observer, session
 src/engine/strategies/  registry + strategies (whole, blocks); the extensibility seam
 src/i18n/           translate() + Svelte locale store; messages/en.ts + vi.ts
 test-fixtures/      sensitive.html for manual FOUC testing
 ```
 
 **Data flow:** presets are saved to storage (the single source of truth) → the background script derives match patterns and calls `syncRegistrations()` → that registers one runtime content script for the configured domains → on a matching page the content script reads the applicable rules and the engine redacts them.
+
+**Live toggle (no reload):** a preset change writes to storage, which fans out to every running content script via `watchPresets`; each reconciles its page through `session.apply`/`clear` (a `RedactionSession` wrapping a reversible redactor). For tabs that have no content script yet (a preset enabled after the page loaded), `background.ts` calls `ensureInjected()` to inject it on demand. `content.ts` sets `data-redact-initialized` on `<html>` so a re-injection into an already-running tab is a no-op.
 
 ## Commands
 
@@ -67,7 +69,6 @@ Follow the test-driven loop in CONVENTIONS.md: skeleton → failing tests → im
 
 ## Deferred features (not yet built)
 
-- Toggling a preset on/off and having pages update **without a reload** (important for dynamic pages where reloading loses state).
 - An interactive element picker (click an element to generate its selector).
 - More redaction strategies and custom block/random characters.
 - Preset import/export.

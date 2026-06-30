@@ -48,6 +48,22 @@ describe('createRedactionObserver', () => {
     expect(wrapper.querySelector('.secret')?.textContent).toBe('██████');
   });
 
+  it('re-redacts text rewritten in place after redaction (characterData)', async () => {
+    document.body.innerHTML = '<p class="secret">John</p>';
+    const redactor = createRedactor([RULE]);
+    observer = createRedactionObserver(redactor);
+    observer.start(document.body);
+    redactor.redactRoot(document);
+
+    const textNode = document.querySelector('.secret')!.firstChild as Text;
+    expect(textNode.data).toBe('████');
+
+    // A framework re-render writes the real value back into the same node.
+    textNode.data = 'Jane Roe';
+    await flush();
+    expect(textNode.data).toBe('████ ███');
+  });
+
   it('stops redacting after stop()', async () => {
     observer = createRedactionObserver(createRedactor([RULE]));
     observer.start(document.body);

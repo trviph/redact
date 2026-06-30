@@ -67,4 +67,63 @@ describe('createRedactor', () => {
     expect(redactor.wasRedacted(secretText)).toBe(true);
     expect(redactor.wasRedacted(keepText)).toBe(false);
   });
+
+  it('restores the original text on restoreAll', () => {
+    document.body.innerHTML = '<p class="secret">John Doe</p>';
+    const redactor = createRedactor([rule({})]);
+    redactor.redactRoot(document);
+    expect(document.querySelector('.secret')?.textContent).toBe('████ ███');
+    redactor.restoreAll();
+    expect(document.querySelector('.secret')?.textContent).toBe('John Doe');
+  });
+
+  it('restores nested original text too', () => {
+    document.body.innerHTML = '<div class="secret">hi <b>there</b></div>';
+    const redactor = createRedactor([rule({})]);
+    redactor.redactRoot(document);
+    redactor.restoreAll();
+    expect(document.querySelector('.secret')?.textContent).toBe('hi there');
+  });
+
+  it('re-redacts a node whose text the page rewrote in place', () => {
+    document.body.innerHTML = '<p class="secret">John</p>';
+    const redactor = createRedactor([rule({})]);
+    redactor.redactRoot(document);
+    const textNode = document.querySelector('.secret')!.firstChild as Text;
+
+    // Simulate a framework re-render writing a fresh real value back.
+    textNode.data = 'Jane Roe';
+    redactor.redactRoot(document);
+    expect(textNode.data).toBe('████ ███');
+  });
+
+  it('leaves an already-redacted node unchanged on a repeat pass (no loop)', () => {
+    document.body.innerHTML = '<p class="secret">John</p>';
+    const redactor = createRedactor([rule({})]);
+    redactor.redactRoot(document);
+    const textNode = document.querySelector('.secret')!.firstChild as Text;
+    redactor.refresh(textNode); // our own value — must not re-process
+    expect(textNode.data).toBe('████');
+  });
+
+  it('refreshes a managed node after the page rewrites it', () => {
+    document.body.innerHTML = '<p class="secret">John</p>';
+    const redactor = createRedactor([rule({})]);
+    redactor.redactRoot(document);
+    const textNode = document.querySelector('.secret')!.firstChild as Text;
+    textNode.data = 'Jane Roe';
+    redactor.refresh(textNode);
+    expect(textNode.data).toBe('████ ███');
+  });
+
+  it('forgets nodes after restore so a later pass redacts again', () => {
+    document.body.innerHTML = '<p class="secret">secret</p>';
+    const redactor = createRedactor([rule({})]);
+    redactor.redactRoot(document);
+    redactor.restoreAll();
+    const text = document.querySelector('.secret')!.firstChild!;
+    expect(redactor.wasRedacted(text)).toBe(false);
+    redactor.redactRoot(document);
+    expect(document.querySelector('.secret')?.textContent).toBe('██████');
+  });
 });

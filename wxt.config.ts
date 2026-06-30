@@ -17,6 +17,8 @@ export default defineConfig({
     browser_specific_settings: {
       gecko: {
         id: 'redact@local.extension',
+        // Everything stays on the device; we collect and transmit nothing.
+        data_collection_permissions: { required: ['none'] },
       },
     },
   },

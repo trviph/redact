@@ -4,10 +4,19 @@ import type { Messages } from './en';
 export const vi: Messages = {
   'app.name': 'Redact',
 
-  'options.title': 'Bộ lọc Redact',
   'options.language': 'Ngôn ngữ',
-  'options.addPreset': 'Thêm bộ lọc',
-  'options.noPresets': 'Chưa có bộ lọc nào. Thêm một bộ để bắt đầu.',
+
+  'list.title': 'Bộ lọc Redact',
+  'list.empty': 'Chưa có bộ lọc nào. Thêm một bộ để bắt đầu.',
+  'list.addPreset': 'Thêm bộ lọc',
+  'list.activeHere': 'Đang áp dụng',
+  'list.prev': 'Trước',
+  'list.next': 'Sau',
+  'list.pageOf': 'Trang {page} trên {count}',
+
+  'editor.newTitle': 'Bộ lọc mới',
+  'editor.editTitle': 'Sửa bộ lọc',
+  'editor.back': 'Về danh sách',
 
   'preset.name': 'Tên',
   'preset.namePlaceholder': 'ví dụ: Ẩn dữ liệu khách hàng',
@@ -31,9 +40,6 @@ export const vi: Messages = {
   'rule.remove': 'Bỏ',
 
   'popup.title': 'Redact',
-  'popup.presetsForSite': 'Bộ lọc cho {host}',
-  'popup.noPresetsForSite': 'Không có bộ lọc nào khớp với trang này.',
-  'popup.openOptions': 'Quản lý bộ lọc',
 
   'overlay.message': 'Đang che dữ liệu…',
 };

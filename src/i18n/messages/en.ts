@@ -5,10 +5,19 @@
 export const en = {
   'app.name': 'Redact',
 
-  'options.title': 'Redact presets',
   'options.language': 'Language',
-  'options.addPreset': 'Add preset',
-  'options.noPresets': 'No presets yet. Add one to get started.',
+
+  'list.title': 'Redact presets',
+  'list.empty': 'No presets yet. Add one to get started.',
+  'list.addPreset': 'Add preset',
+  'list.activeHere': 'Active here',
+  'list.prev': 'Previous',
+  'list.next': 'Next',
+  'list.pageOf': 'Page {page} of {count}',
+
+  'editor.newTitle': 'New preset',
+  'editor.editTitle': 'Edit preset',
+  'editor.back': 'Back to list',
 
   'preset.name': 'Name',
   'preset.namePlaceholder': 'e.g. Hide customer data',
@@ -32,9 +41,6 @@ export const en = {
   'rule.remove': 'Remove',
 
   'popup.title': 'Redact',
-  'popup.presetsForSite': 'Presets for {host}',
-  'popup.noPresetsForSite': 'No presets match this site.',
-  'popup.openOptions': 'Manage presets',
 
   'overlay.message': 'Redacting…',
 } as const;

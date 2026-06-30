@@ -21,11 +21,13 @@ The synchronous hide is load-bearing. Storage is async, so the page stays hidden
 entrypoints/
   background.ts     on preset change: syncRegistrations() + ensureInjected(); install/startup resync
   content.ts        document_start pipeline: hide → load → sweep → reveal; then live reconcile on changes
-  options/          Svelte: preset CRUD + language switcher (fully localized)
-  popup/            Svelte: quick enable/disable for the current site
+  options/          Svelte: full-page list ↔ single-preset editor SPA (?edit=<id> / ?new)
+  popup/            Svelte: full preset list with toggles + current-domain highlight; opens editor in a tab
 src/core/           no DOM — types, storage, domain-match, registration, injection, permissions, factory
 src/engine/         fouc, selector (CSS+XPath), redactor (reversible), observer, session
 src/engine/strategies/  registry + strategies (whole, blocks); the extensibility seam
+src/ui/             shared Svelte UI + helpers: PresetList, PresetEditor, RuleRow, LanguageSwitcher,
+                    brutalism.css (neo-brutalist design tokens), route + paginate (pure, tested), open-editor
 src/i18n/           translate() + Svelte locale store; messages/en.ts + vi.ts
 test-fixtures/      sensitive.html for manual FOUC testing
 ```

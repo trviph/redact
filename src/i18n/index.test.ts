@@ -21,11 +21,11 @@ describe('translate', () => {
   });
 
   it('interpolates named placeholders', () => {
-    expect(translate(en, 'popup.presetsForSite', { host: 'app.com' })).toBe('Presets for app.com');
+    expect(translate(en, 'list.pageOf', { page: 2, count: 5 })).toBe('Page 2 of 5');
   });
 
   it('leaves a placeholder literal when no value is provided', () => {
-    expect(translate(en, 'popup.presetsForSite')).toBe('Presets for {host}');
+    expect(translate(en, 'list.pageOf', { page: 2 })).toBe('Page 2 of {count}');
   });
 });
 

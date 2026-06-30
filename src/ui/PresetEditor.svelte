@@ -1,8 +1,8 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import type { Preset } from '../../src/core/types';
-  import { t } from '../../src/i18n';
-  import { newRule } from '../../src/core/factory';
+  import type { Preset } from '../core/types';
+  import { t } from '../i18n';
+  import { newRule } from '../core/factory';
   import RuleRow from './RuleRow.svelte';
 
   let { preset, onSave, onCancel }: { preset: Preset; onSave: () => void; onCancel: () => void } =
@@ -32,12 +32,12 @@
 <form class="editor" onsubmit={(e) => (e.preventDefault(), save())}>
   <label>
     <span>{$t('preset.name')}</span>
-    <input bind:value={preset.name} placeholder={$t('preset.namePlaceholder')} required />
+    <input class="b-field" bind:value={preset.name} placeholder={$t('preset.namePlaceholder')} required />
   </label>
 
   <label>
     <span>{$t('preset.domains')}</span>
-    <textarea bind:value={domainsText} rows="3"></textarea>
+    <textarea class="b-field" bind:value={domainsText} rows="3"></textarea>
     <small>{$t('preset.domainsHint')}</small>
   </label>
 
@@ -46,17 +46,17 @@
     <span>{$t('preset.enabled')}</span>
   </label>
 
-  <fieldset>
+  <fieldset class="b-card">
     <legend>{$t('preset.rules')}</legend>
     {#each preset.rules as rule (rule.id)}
       <RuleRow {rule} onRemove={() => removeRule(rule.id)} />
     {/each}
-    <button type="button" onclick={addRule}>{$t('preset.addRule')}</button>
+    <button type="button" class="b-btn" onclick={addRule}>{$t('preset.addRule')}</button>
   </fieldset>
 
   <div class="actions">
-    <button type="submit" class="primary">{$t('preset.save')}</button>
-    <button type="button" onclick={onCancel}>{$t('preset.cancel')}</button>
+    <button type="submit" class="b-btn b-btn--accent">{$t('preset.save')}</button>
+    <button type="button" class="b-btn" onclick={onCancel}>{$t('preset.cancel')}</button>
   </div>
 </form>
 
@@ -65,53 +65,38 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 16px;
   }
   label {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    font-size: 14px;
+    font-weight: 700;
   }
   label.inline {
     flex-direction: row;
     align-items: center;
     gap: 8px;
   }
-  input,
-  textarea {
-    padding: 6px 8px;
-    font: inherit;
-  }
   textarea {
     font-family: ui-monospace, monospace;
     resize: vertical;
   }
   small {
-    color: #666;
+    font-weight: 400;
+    color: #555;
   }
   fieldset {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    border: 1px solid #eee;
-    border-radius: 6px;
+    gap: 10px;
+    padding: 14px;
+  }
+  legend {
+    font-weight: 800;
+    padding: 0 6px;
   }
   .actions {
     display: flex;
     gap: 8px;
-  }
-  button {
-    padding: 8px 14px;
-    font: inherit;
-    cursor: pointer;
-  }
-  .primary {
-    background: #1e1e1e;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
   }
 </style>

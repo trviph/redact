@@ -1,28 +1,28 @@
 <script lang="ts">
-  import type { Rule } from '../../src/core/types';
-  import { t } from '../../src/i18n';
+  import type { Rule } from '../core/types';
+  import { t } from '../i18n';
 
   // `rule` is the reactive object from the parent's list; mutating its fields
   // here updates the parent directly, so it does not need to be a bindable prop.
   let { rule, onRemove }: { rule: Rule; onRemove: () => void } = $props();
 </script>
 
-<div class="rule">
+<div class="rule b-card">
   <input
-    class="selector"
+    class="b-field selector"
     placeholder={$t('rule.selectorPlaceholder')}
     bind:value={rule.selector}
   />
-  <select bind:value={rule.selectorType} aria-label={$t('rule.selectorType')}>
+  <select class="b-field type" bind:value={rule.selectorType} aria-label={$t('rule.selectorType')}>
     <option value="css">{$t('rule.typeCss')}</option>
     <option value="xpath">{$t('rule.typeXpath')}</option>
   </select>
   <input
-    class="description"
+    class="b-field description"
     placeholder={$t('rule.descriptionPlaceholder')}
     bind:value={rule.description}
   />
-  <button type="button" class="remove" onclick={onRemove}>{$t('rule.remove')}</button>
+  <button type="button" class="b-btn" onclick={onRemove}>{$t('rule.remove')}</button>
 </div>
 
 <style>
@@ -31,16 +31,12 @@
     grid-template-columns: 2fr auto 2fr auto;
     gap: 8px;
     align-items: center;
-  }
-  input,
-  select {
-    padding: 6px 8px;
-    font: inherit;
+    padding: 10px;
   }
   .selector {
     font-family: ui-monospace, monospace;
   }
-  .remove {
-    padding: 6px 10px;
+  .type {
+    width: auto;
   }
 </style>

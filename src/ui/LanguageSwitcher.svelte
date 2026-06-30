@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t, locale, setLocale, SUPPORTED_LOCALES, type Locale } from '../../src/i18n';
+  import { t, locale, setLocale, SUPPORTED_LOCALES, type Locale } from '../i18n';
 
   const labels: Record<Locale, string> = { en: 'English', vi: 'Tiếng Việt' };
 
@@ -10,7 +10,7 @@
 
 <label class="language">
   <span>{$t('options.language')}</span>
-  <select value={$locale} onchange={change}>
+  <select class="b-field" value={$locale} onchange={change}>
     {#each SUPPORTED_LOCALES as code (code)}
       <option value={code}>{labels[code]}</option>
     {/each}
@@ -22,9 +22,9 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-weight: 700;
   }
   select {
-    padding: 4px 8px;
+    width: auto;
   }
 </style>

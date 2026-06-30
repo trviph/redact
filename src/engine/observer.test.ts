@@ -64,6 +64,19 @@ describe('createRedactionObserver', () => {
     expect(textNode.data).toBe('████ ███');
   });
 
+  it('redacts dynamic content for an xpath rule (whole-doc path)', async () => {
+    const xpathRule: Rule = { id: 'x', selector: '//mark', selectorType: 'xpath', style: { strategy: 'whole' } };
+    observer = createRedactionObserver(createRedactor([xpathRule]));
+    observer.start(document.body);
+
+    const el = document.createElement('mark');
+    el.textContent = 'leak';
+    document.body.appendChild(el);
+
+    await flush();
+    expect(el.textContent).toBe('████');
+  });
+
   it('stops redacting after stop()', async () => {
     observer = createRedactionObserver(createRedactor([RULE]));
     observer.start(document.body);

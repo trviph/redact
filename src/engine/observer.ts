@@ -7,22 +7,46 @@ export interface RedactionObserver {
   stop(): void;
 }
 
-/** True if a batch contains anything that could add or reintroduce matchable text. */
-function isRelevant(mutations: MutationRecord[]): boolean {
-  return mutations.some((m) => m.type === 'characterData' || m.addedNodes.length > 0);
+/** The element scope to re-check for a changed node: itself if an element, else its parent. */
+function affectedElement(node: Node): Element | null {
+  return node.nodeType === Node.ELEMENT_NODE ? (node as Element) : node.parentElement;
+}
+
+/** Collects the elements touched by a batch (added nodes and changed text), deduped. */
+function affectedElements(mutations: MutationRecord[]): Set<Element> {
+  const elements = new Set<Element>();
+  for (const mutation of mutations) {
+    if (mutation.type === 'characterData') {
+      const el = affectedElement(mutation.target);
+      if (el) elements.add(el);
+      continue;
+    }
+    for (const added of mutation.addedNodes) {
+      const el = affectedElement(added);
+      if (el) elements.add(el);
+    }
+  }
+  return elements;
 }
 
 /**
  * Watches the DOM for content added during parse and afterwards (SPA renders),
- * and for in-place text changes from re-renders. On any such change it re-sweeps
- * the whole document, so content rewritten *deep inside* a matched element — not
- * just newly added matched subtrees — is re-redacted. Redaction edits text data
- * only and adds no nodes, and already-redacted nodes are skipped, so a sweep
- * triggered by our own writes redacts nothing new and does not loop.
+ * and for in-place text changes from re-renders. For CSS rules it re-redacts
+ * only the elements a change touched — their matched ancestors and descendants —
+ * so the cost is bounded by the changed region. XPath rules have no cheap
+ * ancestor test, so they fall back to a whole-document sweep. Redaction edits
+ * text data only and adds no nodes, and already-redacted nodes are skipped, so a
+ * sweep triggered by our own writes redacts nothing new and does not loop.
  */
 export function createRedactionObserver(redactor: Redactor): RedactionObserver {
   const observer = new MutationObserver((mutations) => {
-    if (isRelevant(mutations)) redactor.redactRoot(document);
+    const targets = affectedElements(mutations);
+    if (targets.size === 0) return;
+    if (redactor.hasXpathRules) {
+      redactor.redactRoot(document);
+    } else {
+      redactor.redactScoped(targets);
+    }
   });
 
   return {

@@ -117,3 +117,85 @@ describe('createRedactor', () => {
     expect(document.querySelector('.secret')?.textContent).toBe('██████');
   });
 });
+
+describe('hasXpathRules', () => {
+  it('is false when every rule is CSS', () => {
+    expect(createRedactor([rule({})]).hasXpathRules).toBe(false);
+  });
+
+  it('is true when any rule is XPath', () => {
+    const r = createRedactor([rule({}), rule({ selectorType: 'xpath', selector: '//b' })]);
+    expect(r.hasXpathRules).toBe(true);
+  });
+});
+
+describe('element box cap', () => {
+  function mockSize(el: Element, width: number, height: number) {
+    el.getBoundingClientRect = () =>
+      ({ width, height, top: 0, left: 0, right: width, bottom: height, x: 0, y: 0, toJSON() {} }) as DOMRect;
+  }
+
+  it('caps a matched element to its measured box', () => {
+    document.body.innerHTML = '<p class="secret">John Doe</p>';
+    const el = document.querySelector('.secret') as HTMLElement;
+    mockSize(el, 120, 24);
+    createRedactor([rule({})]).redactRoot(document);
+    expect(el.style.maxWidth).toBe('120px');
+    expect(el.style.maxHeight).toBe('24px');
+    expect(el.style.overflow).toBe('hidden');
+  });
+
+  it('restores the original inline styles on restoreAll', () => {
+    document.body.innerHTML = '<p class="secret">John</p>';
+    const el = document.querySelector('.secret') as HTMLElement;
+    el.style.overflow = 'scroll';
+    mockSize(el, 80, 16);
+    const redactor = createRedactor([rule({})]);
+    redactor.redactRoot(document);
+    expect(el.style.overflow).toBe('hidden');
+    redactor.restoreAll();
+    expect(el.style.maxWidth).toBe('');
+    expect(el.style.maxHeight).toBe('');
+    expect(el.style.overflow).toBe('scroll');
+  });
+
+  it('does not cap a zero-size (unlaid-out) element', () => {
+    document.body.innerHTML = '<p class="secret">John</p>';
+    const el = document.querySelector('.secret') as HTMLElement; // jsdom rect is 0×0
+    createRedactor([rule({})]).redactRoot(document);
+    expect(el.style.maxWidth).toBe('');
+    expect(el.textContent).toBe('████'); // text still redacted
+  });
+});
+
+describe('redactScoped', () => {
+  it('redacts the matched ancestor of a target (deep change inside a match)', () => {
+    document.body.innerHTML = '<div class="secret"><span><i id="deep">John</i></span></div>';
+    const redactor = createRedactor([rule({})]);
+    const deep = document.getElementById('deep')!;
+    redactor.redactScoped([deep]);
+    expect(document.querySelector('.secret')?.textContent).toBe('████');
+  });
+
+  it('redacts matched descendants within a target', () => {
+    document.body.innerHTML = '<div id="host"><p class="secret">John</p></div>';
+    const redactor = createRedactor([rule({})]);
+    redactor.redactScoped([document.getElementById('host')!]);
+    expect(document.querySelector('.secret')?.textContent).toBe('████');
+  });
+
+  it('redacts the target itself when it matches', () => {
+    document.body.innerHTML = '<p class="secret">John</p>';
+    const redactor = createRedactor([rule({})]);
+    const el = document.querySelector('.secret')!;
+    redactor.redactScoped([el]);
+    expect(el.textContent).toBe('████');
+  });
+
+  it('does nothing for targets unrelated to any rule', () => {
+    document.body.innerHTML = '<p class="keep">John</p>';
+    const redactor = createRedactor([rule({})]);
+    expect(redactor.redactScoped([document.querySelector('.keep')!])).toBe(0);
+    expect(document.querySelector('.keep')?.textContent).toBe('John');
+  });
+});

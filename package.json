@@ -3,6 +3,7 @@
   "description": "Redact page elements before first render, by CSS or XPath selector",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "wxt",
